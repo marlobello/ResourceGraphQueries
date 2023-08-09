@@ -1,0 +1,4 @@
+recoveryservicesresources
+| where type == "microsoft.recoveryservices/vaults/backupfabrics/protectioncontainers/protecteditems"
+| project backupItemSubscriptionId = subscriptionId, backupItemResourceGroup = resourceGroup, backupItemId = id, backupItemName = name, backupManagementType = properties.backupManagmentType,  backupPolicyName = properties.policyInfo.name, sourceResourceId = tolower(tostring(properties.sourceResourceId))
+| join kind = leftouter  (resources | extend rightId = tolower(id)) on $left.sourceResourceId == $right.rightId
