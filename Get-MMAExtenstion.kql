@@ -1,0 +1,15 @@
+resources
+| where type == 'microsoft.compute/virtualmachines'
+| extend
+	JoinID = toupper(id),
+	OSName = tostring(properties.osProfile.computerName),
+	OSType = tostring(properties.storageProfile.osDisk.osType)
+| join kind=leftouter(
+	resources
+	| where type == 'microsoft.compute/virtualmachines/extensions'
+	| extend 
+		VMId = toupper(substring(id, 0, indexof(id, '/extensions'))),
+		ExtensionName = name
+) on $left.JoinID == $right.VMId
+| where (ExtensionName == "MicrosoftMonitoringAgent" or ExtensionName == "OmsAgentForLinux")
+| order by tolower(subscriptionId) asc
