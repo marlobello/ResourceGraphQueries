@@ -1,0 +1,5 @@
+resources
+| where type == "microsoft.compute/virtualmachines"
+| project Os = tostring(properties.storageProfile.osDisk.osType), vmSize = properties.hardwareProfile.vmSize, licenseType = tostring(properties.licenseType)
+| extend Cores = toint(extract(".+[A-Z]([0-9]+).+", 1, tostring(vmSize)))
+| summarize Num_Cores = sum(Cores), Num_Servers = count() by Os,licenseType
